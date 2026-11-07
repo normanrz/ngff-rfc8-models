@@ -1,4 +1,6 @@
 {
+  "zarr_format": 3,
+  "node_type": "group",
   "attributes": {
     "ome": {
       "version": "0.9dev42",
@@ -11,26 +13,16 @@
             "type": "multiscale",
             "id": "0192f3a0-7c1e-7b00-9c22-000000000002",
             "name": "image",
-            "path": {
-              "type": "zarr",
-              "format": "relative",
-              "href": "./image"
-            }
+            "ref": [{"type": "zarr", "path": "./image"}]
           },
           {
             "type": "multiscale",
             "id": "0192f3a0-7c1e-7b00-9c22-000000000003",
             "name": "nuclei",
-            "path": {
-              "type": "zarr",
-              "format": "relative",
-              "href": "./nuclei"
-            }
+            "ref": [{"type": "zarr", "path": "./nuclei"}]
           }
         ]
       }
     }
-  },
-  "zarr_format": 3,
-  "node_type": "group"
+  }
 }

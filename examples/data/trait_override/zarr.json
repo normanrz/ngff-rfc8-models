@@ -1,4 +1,6 @@
 {
+  "zarr_format": 3,
+  "node_type": "group",
   "attributes": {
     "ome": {
       "version": "0.9dev42",
@@ -11,33 +13,17 @@
             "type": "multiscale",
             "id": "0192f3a0-7c1e-7b00-9c22-000000000002",
             "name": "nuclei",
-            "path": {
-              "type": "zarr",
-              "format": "relative",
-              "href": "./image"
-            },
+            "ref": [{"type": "zarr", "path": "./image"}],
             "traits": [
               {
                 "type": "labels",
                 "source": [],
-                "label_attributes": [
-                  {
-                    "label_value": 1,
-                    "rgba": [
-                      0,
-                      0,
-                      255,
-                      255
-                    ]
-                  }
-                ]
+                "label_attributes": [{"label_value": 1, "rgba": [0, 0, 255, 255]}]
               }
             ]
           }
         ]
       }
     }
-  },
-  "zarr_format": 3,
-  "node_type": "group"
+  }
 }

@@ -1,6 +1,6 @@
 from uuid import uuid7
 
-from rfc8_model.aux import StandaloneJson, ZarrJson
+from rfc8_model.container import StandaloneJson, ZarrJson
 from rfc8_model.models import (
     CollectionNode,
     MultiscaleNode,

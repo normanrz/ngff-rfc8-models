@@ -1,4 +1,6 @@
 {
+  "zarr_format": 3,
+  "node_type": "group",
   "attributes": {
     "ome": {
       "version": "0.9dev42",
@@ -11,16 +13,10 @@
             "type": "collection",
             "id": "0192f3a0-7c1e-7b00-9c22-000000000003",
             "name": "labels",
-            "path": {
-              "type": "json",
-              "format": "relative",
-              "href": "./labels.json"
-            }
+            "ref": [{"type": "relative", "path": "./labels.json"}, {"type": "json"}]
           }
         ]
       }
     }
-  },
-  "zarr_format": 3,
-  "node_type": "group"
+  }
 }

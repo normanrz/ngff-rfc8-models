@@ -1,4 +1,6 @@
 {
+  "zarr_format": 3,
+  "node_type": "group",
   "attributes": {
     "ome": {
       "version": "0.9dev42",
@@ -11,16 +13,13 @@
             "type": "multiscale",
             "id": "0192f3a0-7c1e-7b00-9c22-000000000004",
             "name": "published-reference",
-            "path": {
-              "type": "zarr",
-              "format": "http",
-              "href": "https://example.org/data/reference.ome.zarr"
-            }
+            "ref": [
+              {"type": "url", "url": "https://example.org/data/reference.ome.zarr"},
+              {"type": "zarr"}
+            ]
           }
         ]
       }
     }
-  },
-  "zarr_format": 3,
-  "node_type": "group"
+  }
 }

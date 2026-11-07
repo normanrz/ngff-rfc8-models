@@ -13,7 +13,7 @@ from typing import Any
 
 from pydantic import ValidationError
 
-from rfc8_model.aux import StandaloneJson, ZarrJson
+from rfc8_model.container import StandaloneJson, ZarrJson
 from rfc8_model.example_extensions import (
     FRACTAL_MANIFEST,
     NODE_TYPES,

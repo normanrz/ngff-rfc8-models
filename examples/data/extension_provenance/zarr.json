@@ -1,11 +1,15 @@
 {
+  "zarr_format": 3,
+  "node_type": "group",
   "attributes": {
     "ome": {
       "version": "0.9dev42",
-      "extension_manifest": [
+      "extension_manifests": [
         {
           "id": "https://raw.githubusercontent.com/BioVisionCenter/ngio-collections/main/examples/schemas/fractal/",
           "version": "0.1",
+          "name": "Fractal",
+          "homepage": "https://github.com/BioVisionCenter/ngio-collections/tree/main/examples/schemas",
           "schemas": [
             {
               "type": "jsonschema",
@@ -15,9 +19,7 @@
               "type": "jsonschema",
               "url": "https://raw.githubusercontent.com/BioVisionCenter/ngio-collections/main/examples/schemas/fractal/table.schema.json"
             }
-          ],
-          "name": "Fractal",
-          "homepage": "https://github.com/BioVisionCenter/ngio-collections/tree/main/examples/schemas"
+          ]
         }
       ],
       "root": {
@@ -29,21 +31,13 @@
             "type": "multiscale",
             "id": "0192f3a0-7c1e-7b00-9c22-000000000002",
             "name": "raw",
-            "path": {
-              "type": "zarr",
-              "format": "relative",
-              "href": "./raw"
-            }
+            "ref": [{"type": "zarr", "path": "./raw"}]
           },
           {
             "type": "multiscale",
             "id": "0192f3a0-7c1e-7b00-9c22-000000000003",
             "name": "nuclei",
-            "path": {
-              "type": "zarr",
-              "format": "relative",
-              "href": "./nuclei"
-            },
+            "ref": [{"type": "zarr", "path": "./nuclei"}],
             "traits": [
               {
                 "type": "https://raw.githubusercontent.com/BioVisionCenter/ngio-collections/main/examples/schemas/fractal/provenance",
@@ -53,7 +47,9 @@
                 "inputs": [
                   {
                     "type": "multiscale",
-                    "ref": "0192f3a0-7c1e-7b00-9c22-000000000002"
+                    "ref": [
+                      {"type": "id", "id": "0192f3a0-7c1e-7b00-9c22-000000000002"}
+                    ]
                   }
                 ]
               }
@@ -62,7 +58,5 @@
         ]
       }
     }
-  },
-  "zarr_format": 3,
-  "node_type": "group"
+  }
 }

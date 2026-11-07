@@ -10,8 +10,8 @@ from .models import Node
 
 class OmeAttributes(BaseModel):
     version: Literal["0.9dev42"] = "0.9dev42"
-    root: Node
     extension_manifests: list[ExtensionManifest] | MISSING = MISSING
+    root: Node
 
 
 class Attributes(BaseModel):
@@ -19,8 +19,8 @@ class Attributes(BaseModel):
 
 
 class ZarrJson(BaseModel):
-    node_type: Literal["group", "array"] = "group"
     zarr_format: Literal[3] = 3
+    node_type: Literal["group", "array"] = "group"
     attributes: Attributes
 
     @classmethod

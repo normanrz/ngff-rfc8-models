@@ -1,4 +1,6 @@
 {
+  "zarr_format": 3,
+  "node_type": "group",
   "attributes": {
     "ome": {
       "version": "0.9dev42",
@@ -11,77 +13,44 @@
             "type": "coordinate_system",
             "id": "0192f3a0-7c1e-7b00-9c22-00000000002a",
             "axes": [
-              {
-                "name": "y",
-                "type": "space",
-                "unit": "micrometer"
-              },
-              {
-                "name": "x",
-                "type": "space",
-                "unit": "micrometer"
-              }
-            ]
-          }
-        ],
-        "scales": [
-          {
-            "type": "scale",
-            "id": "0192f3a0-7c1e-7b00-9c22-00000000003a",
-            "path": {
-              "type": "zarr",
-              "format": "relative",
-              "href": "./s0"
-            },
-            "coordinate_transformations": [
-              {
-                "input": {
-                  "type": "scale",
-                  "ref": "0192f3a0-7c1e-7b00-9c22-00000000003a"
-                },
-                "output": {
-                  "type": "coordinate_system",
-                  "ref": "0192f3a0-7c1e-7b00-9c22-00000000002a"
-                },
-                "type": "scale",
-                "scale": [
-                  1.0,
-                  1.0
-                ]
-              }
+              {"id": "y", "unit": "micrometer", "type": "space"},
+              {"id": "x", "unit": "micrometer", "type": "space"}
             ]
           },
           {
-            "type": "scale",
-            "id": "0192f3a0-7c1e-7b00-9c22-00000000004a",
-            "path": {
-              "type": "zarr",
-              "format": "relative",
-              "href": "./s1"
-            },
-            "coordinate_transformations": [
-              {
-                "input": {
-                  "type": "scale",
-                  "ref": "0192f3a0-7c1e-7b00-9c22-00000000004a"
-                },
-                "output": {
-                  "type": "coordinate_system",
-                  "ref": "0192f3a0-7c1e-7b00-9c22-00000000002a"
-                },
-                "type": "scale",
-                "scale": [
-                  2.0,
-                  2.0
-                ]
-              }
-            ]
+            "type": "coordinate_system",
+            "id": "7c9ec45b-f1fc-59cc-8802-da5daa25ad64",
+            "name": "array",
+            "axes": [{"id": "y", "type": "array"}, {"id": "x", "type": "array"}]
           }
         ],
-        "nodes": []
+        "coordinate_transformations": [
+          {
+            "input": {
+              "type": "coordinate_system",
+              "ref": [{"type": "id", "id": "7c9ec45b-f1fc-59cc-8802-da5daa25ad64"}]
+            },
+            "output": {
+              "type": "coordinate_system",
+              "ref": [{"type": "id", "id": "0192f3a0-7c1e-7b00-9c22-00000000002a"}]
+            },
+            "type": "scale",
+            "scale": [1.0, 1.0]
+          }
+        ],
+        "arrays": [
+          {
+            "id": "0192f3a0-7c1e-7b00-9c22-00000000003a",
+            "ref": [{"type": "zarr", "path": "./s0"}],
+            "downsamplingTransformations": [{"type": "scale", "scale": [1.0, 1.0]}]
+          },
+          {
+            "id": "0192f3a0-7c1e-7b00-9c22-00000000004a",
+            "ref": [{"type": "zarr", "path": "./s1"}],
+            "downsamplingTransformations": [{"type": "scale", "scale": [2.0, 2.0]}]
+          }
+        ]
       }
     }
-  },
-  "zarr_format": 3,
-  "node_type": "group"
+  }
 }

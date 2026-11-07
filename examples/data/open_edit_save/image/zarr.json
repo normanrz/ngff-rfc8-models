@@ -1,4 +1,6 @@
 {
+  "zarr_format": 3,
+  "node_type": "group",
   "attributes": {
     "ome": {
       "version": "0.9dev42",
@@ -12,51 +14,39 @@
             "id": "0192f3a0-7c1e-7b00-9c22-000000000022",
             "name": "stage",
             "axes": [
-              {
-                "name": "y",
-                "type": "space",
-                "unit": "micrometer"
-              },
-              {
-                "name": "x",
-                "type": "space",
-                "unit": "micrometer"
-              }
+              {"id": "y", "unit": "micrometer", "type": "space"},
+              {"id": "x", "unit": "micrometer", "type": "space"}
             ]
-          }
-        ],
-        "scales": [
+          },
           {
-            "type": "scale",
-            "id": "0192f3a0-7c1e-7b00-9c22-000000000032",
-            "path": {
-              "type": "zarr",
-              "format": "relative",
-              "href": "./s0"
-            },
-            "coordinate_transformations": [
-              {
-                "input": {
-                  "type": "scale",
-                  "ref": "0192f3a0-7c1e-7b00-9c22-000000000032"
-                },
-                "output": {
-                  "type": "coordinate_system",
-                  "ref": "0192f3a0-7c1e-7b00-9c22-000000000022"
-                },
-                "type": "scale",
-                "scale": [
-                  1.0,
-                  1.0
-                ]
-              }
-            ]
+            "type": "coordinate_system",
+            "id": "74a417e7-a8cf-5257-af67-919e3f6deb3c",
+            "name": "array",
+            "axes": [{"id": "y", "type": "array"}, {"id": "x", "type": "array"}]
           }
         ],
-        "nodes": []
+        "coordinate_transformations": [
+          {
+            "input": {
+              "type": "coordinate_system",
+              "ref": [{"type": "id", "id": "74a417e7-a8cf-5257-af67-919e3f6deb3c"}]
+            },
+            "output": {
+              "type": "coordinate_system",
+              "ref": [{"type": "id", "id": "0192f3a0-7c1e-7b00-9c22-000000000022"}]
+            },
+            "type": "scale",
+            "scale": [1.0, 1.0]
+          }
+        ],
+        "arrays": [
+          {
+            "id": "0192f3a0-7c1e-7b00-9c22-000000000032",
+            "ref": [{"type": "zarr", "path": "./s0"}],
+            "downsamplingTransformations": [{"type": "scale", "scale": [1.0, 1.0]}]
+          }
+        ]
       }
     }
-  },
-  "zarr_format": 3,
-  "node_type": "group"
+  }
 }

@@ -52,10 +52,66 @@ ReferenceLocator = Annotated[
 ReferenceLocatorPipeline = tuple[ReferenceLocator, ...]
 
 
+# NGFF 0.6 axes: `unit` SHOULD be one of these UDUNITS-2 units, but other values are allowed
+SpaceUnit = Literal[
+    "angstrom",
+    "attometer",
+    "centimeter",
+    "decimeter",
+    "exameter",
+    "femtometer",
+    "foot",
+    "gigameter",
+    "hectometer",
+    "inch",
+    "kilometer",
+    "megameter",
+    "meter",
+    "micrometer",
+    "mile",
+    "millimeter",
+    "nanometer",
+    "parsec",
+    "petameter",
+    "picometer",
+    "terameter",
+    "yard",
+    "yoctometer",
+    "yottameter",
+    "zeptometer",
+    "zettameter",
+]
+TimeUnit = Literal[
+    "attosecond",
+    "centisecond",
+    "day",
+    "decisecond",
+    "exasecond",
+    "femtosecond",
+    "gigasecond",
+    "hectosecond",
+    "hour",
+    "kilosecond",
+    "megasecond",
+    "microsecond",
+    "millisecond",
+    "minute",
+    "nanosecond",
+    "petasecond",
+    "picosecond",
+    "second",
+    "terasecond",
+    "yoctosecond",
+    "yottasecond",
+    "zeptosecond",
+    "zettasecond",
+]
+
+
 class _CoordinateSystemAxis(BaseModel):
     id: Id
     name: Name | MISSING = MISSING
-    unit: str | MISSING  # SHOULD
+    unit: str | MISSING = MISSING  # SHOULD
     discrete: bool | MISSING = MISSING  # MAY
     long_name: Name | MISSING = MISSING  # MAY
 
@@ -66,10 +122,12 @@ class ArrayCoordinateSystemAxis(_CoordinateSystemAxis):
 
 class SpaceCoordinateSystemAxis(_CoordinateSystemAxis):
     type: Literal["space"]
+    unit: SpaceUnit | str | MISSING = MISSING  # SHOULD
 
 
 class TimeCoordinateSystemAxis(_CoordinateSystemAxis):
     type: Literal["time"]
+    unit: TimeUnit | str | MISSING = MISSING  # SHOULD
 
 
 class ChannelCoordinateSystemAxis(_CoordinateSystemAxis):
@@ -163,6 +221,7 @@ class MultiscaleNodeArray(BaseModel):
     type: Literal["singlescale"] = "singlescale"  # ??
     id: Id | MISSING = MISSING
     name: Name | MISSING = MISSING
+    ref: ReferenceLocatorPipeline | MISSING = MISSING
     downsamplingTransformations: (
         tuple[ScaleDownsamplingCoordinateTransformation]
         | tuple[
