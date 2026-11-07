@@ -11,7 +11,7 @@ from .models import Node
 class OmeAttributes(BaseModel):
     version: Literal["0.9dev42"] = "0.9dev42"
     root: Node
-    extension_manifest: ExtensionManifest | MISSING = MISSING
+    extension_manifests: list[ExtensionManifest] | MISSING = MISSING
 
 
 class Attributes(BaseModel):

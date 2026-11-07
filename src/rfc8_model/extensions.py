@@ -7,7 +7,7 @@ from pydantic import MISSING, BaseModel, Field, StringConstraints
 from .models import Name
 
 Version = Annotated[str, StringConstraints(pattern=r"^[0-9]+(\.[0-9A-Za-z.+-]+)?$")]
-NonEmpty = Annotated[str, StringConstraints(pattern="^.+$")]
+NonEmpty = Annotated[str, StringConstraints(pattern=r"\S")]
 # RFC 3986: scheme ":" hier-part, no whitespace
 URI = Annotated[str, StringConstraints(pattern=r"^[a-zA-Z][a-zA-Z0-9+.-]*:\S+$")]
 URL = Annotated[str, StringConstraints(pattern=r"^https?://[^\s/?#]+[^\s]*$")]

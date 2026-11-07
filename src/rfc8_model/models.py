@@ -2,25 +2,27 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import MISSING, BaseModel, StringConstraints
+from pydantic import MISSING, BaseModel, ConfigDict, StringConstraints
 
 from .utils import OpenTypeUnion
 
-Name = Annotated[str, StringConstraints(pattern="^.+$")]
-Id = Annotated[str, StringConstraints(pattern="^[a-zA-Z0-9-_.]+$")]
-Type = Annotated[str, StringConstraints(pattern="^.+$")]
+Name = Annotated[str, StringConstraints(pattern=r"^\S(.*\S)?$")]
+Id = Annotated[str, StringConstraints(pattern=r"^[A-Za-z0-9_][A-Za-z0-9_.-]*$")]
+# SHOULD be a type from the spec or a URI (for extensions), but other values are allowed
+Type = Annotated[str, StringConstraints(pattern=r"^\S(.*\S)?$")]
+RelativePath = Annotated[str, StringConstraints(pattern=r"^[^/]+(/[^/]+)*$")]
 
 CustomPathFormat = Annotated[str, StringConstraints(pattern="^.+$")]
 
 
 class RelativePathReferenceLocator(BaseModel):
     type: Literal["relative"] = "relative"
-    path: Annotated[str, StringConstraints(pattern="^.+$")]
+    path: RelativePath
 
 
 class ZarrReferenceLocator(BaseModel):
     type: Literal["zarr"] = "zarr"
-    path: str | MISSING = MISSING
+    path: RelativePath | MISSING = MISSING
 
 
 class JsonReferenceLocator(BaseModel):
@@ -33,6 +35,8 @@ class IdReferenceLocator(BaseModel):
 
 
 class CustomReferenceLocator(BaseModel):
+    model_config = ConfigDict(extra="allow")  # keep extension fields
+
     type: Type
 
 
@@ -56,31 +60,33 @@ class _CoordinateSystemAxis(BaseModel):
     long_name: Name | MISSING = MISSING  # MAY
 
 
-class ArrayCoordinateSystemAxis(BaseModel):
+class ArrayCoordinateSystemAxis(_CoordinateSystemAxis):
     type: Literal["array"]
 
 
-class SpaceCoordinateSystemAxis(BaseModel):
+class SpaceCoordinateSystemAxis(_CoordinateSystemAxis):
     type: Literal["space"]
 
 
-class TimeCoordinateSystemAxis(BaseModel):
+class TimeCoordinateSystemAxis(_CoordinateSystemAxis):
     type: Literal["time"]
 
 
-class ChannelCoordinateSystemAxis(BaseModel):
+class ChannelCoordinateSystemAxis(_CoordinateSystemAxis):
     type: Literal["channel"]
 
 
-class CoordinateCoordinateSystemAxis(BaseModel):
+class CoordinateCoordinateSystemAxis(_CoordinateSystemAxis):
     type: Literal["coordinate"]
 
 
-class DisplacementCoordinateSystemAxis(BaseModel):
+class DisplacementCoordinateSystemAxis(_CoordinateSystemAxis):
     type: Literal["displacement"]
 
 
 class CustomCoordinateSystemAxis(_CoordinateSystemAxis):
+    model_config = ConfigDict(extra="allow")  # keep extension fields
+
     type: Type
 
 
@@ -97,6 +103,7 @@ CoordinateSystemAxis = Annotated[
 
 
 class CoordinateSystem(BaseModel):
+    type: Literal["coordinate_system"] = "coordinate_system"
     id: Id
     name: Name | MISSING = MISSING
     axes: list[CoordinateSystemAxis]
@@ -122,19 +129,21 @@ class ScaleCoordinateTransformation(_CoordinateTransformation):
     scale: tuple[float, ...]
 
 
-class TranslateCoordinateTransformation(_CoordinateTransformation):
-    type: Literal["translate"] = "translate"
-    scale: tuple[float, ...]
+class TranslationCoordinateTransformation(_CoordinateTransformation):
+    type: Literal["translation"] = "translation"
+    translation: tuple[float, ...]
 
 
 class CustomCoordinateTransformation(_CoordinateTransformation):
+    model_config = ConfigDict(extra="allow")  # keep extension fields
+
     type: Type
 
 
 CoordinateTransformation = Annotated[
     IdentityCoordinateTransformation
     | ScaleCoordinateTransformation
-    | TranslateCoordinateTransformation
+    | TranslationCoordinateTransformation
     | CustomCoordinateTransformation,
     OpenTypeUnion(),
 ]
@@ -145,9 +154,9 @@ class ScaleDownsamplingCoordinateTransformation(BaseModel):
     scale: tuple[float, ...]
 
 
-class TranslateDownsamplingCoordinateTransformation(BaseModel):
-    type: Literal["translate"] = "translate"
-    translate: tuple[float, ...]
+class TranslationDownsamplingCoordinateTransformation(BaseModel):
+    type: Literal["translation"] = "translation"
+    translation: tuple[float, ...]
 
 
 class MultiscaleNodeArray(BaseModel):
@@ -158,10 +167,10 @@ class MultiscaleNodeArray(BaseModel):
         tuple[ScaleDownsamplingCoordinateTransformation]
         | tuple[
             ScaleDownsamplingCoordinateTransformation,
-            TranslateDownsamplingCoordinateTransformation,
+            TranslationDownsamplingCoordinateTransformation,
         ]
         | tuple[
-            TranslateDownsamplingCoordinateTransformation,
+            TranslationDownsamplingCoordinateTransformation,
             ScaleDownsamplingCoordinateTransformation,
         ]
     )
@@ -202,6 +211,8 @@ class CollectionNodeReference(BaseModel):
 
 
 class CustomLeafNode(BaseModel):
+    model_config = ConfigDict(extra="allow")  # keep extension fields
+
     type: Type
     id: Id
     name: Name | MISSING = MISSING
@@ -209,6 +220,8 @@ class CustomLeafNode(BaseModel):
 
 
 class CustomLeafNodeReference(BaseModel):
+    model_config = ConfigDict(extra="allow")  # keep extension fields
+
     type: Type
     id: Id
     name: Name | MISSING = MISSING
@@ -223,6 +236,8 @@ class SceneTrait(BaseModel):
 
 
 class CustomTrait(BaseModel):
+    model_config = ConfigDict(extra="allow")  # keep extension fields
+
     type: Type
 
 
