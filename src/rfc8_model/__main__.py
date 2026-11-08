@@ -16,14 +16,14 @@ multiscale_zarr_group = ZarrJson.with_ome(
         coordinate_systems=(),
         arrays=(
             MultiscaleNodeArray(
-                downsamplingTransformations=(
+                downsampling_transformations=(
                     ScaleDownsamplingCoordinateTransformation(
                         scale=(1.0, 1.0, 1.0, 1.0)
                     ),
                 )
             ),
             MultiscaleNodeArray(
-                downsamplingTransformations=(
+                downsampling_transformations=(
                     ScaleDownsamplingCoordinateTransformation(
                         scale=(1.0, 2.0, 2.0, 2.0)
                     ),

@@ -79,7 +79,7 @@ def multiscale(node: Json) -> Json:
         {
             "id": scale["id"],
             "ref": pipeline(scale["path"]),
-            "downsamplingTransformations": [
+            "downsampling_transformations": [
                 {"type": "scale", "scale": [ratio(s, b) for s, b in zip(ct["scale"], base)]}
                 for ct in scale["coordinate_transformations"]
             ],

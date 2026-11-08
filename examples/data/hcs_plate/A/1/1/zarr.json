@@ -42,12 +42,12 @@
           {
             "id": "0192f3a0-7c1e-7b00-9c22-00000000003a",
             "ref": [{"type": "zarr", "path": "./s0"}],
-            "downsamplingTransformations": [{"type": "scale", "scale": [1.0, 1.0]}]
+            "downsampling_transformations": [{"type": "scale", "scale": [1.0, 1.0]}]
           },
           {
             "id": "0192f3a0-7c1e-7b00-9c22-00000000004a",
             "ref": [{"type": "zarr", "path": "./s1"}],
-            "downsamplingTransformations": [{"type": "scale", "scale": [2.0, 2.0]}]
+            "downsampling_transformations": [{"type": "scale", "scale": [2.0, 2.0]}]
           }
         ]
       }

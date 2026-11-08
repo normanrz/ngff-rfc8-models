@@ -222,7 +222,7 @@ class MultiscaleNodeArray(BaseModel):
     id: Id | MISSING = MISSING
     name: Name | MISSING = MISSING
     ref: ReferenceLocatorPipeline | MISSING = MISSING
-    downsamplingTransformations: (
+    downsampling_transformations: (
         tuple[ScaleDownsamplingCoordinateTransformation]
         | tuple[
             ScaleDownsamplingCoordinateTransformation,

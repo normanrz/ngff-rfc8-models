@@ -58,7 +58,7 @@
               },
               {"type": "zarr"}
             ],
-            "downsamplingTransformations": [
+            "downsampling_transformations": [
               {"type": "scale", "scale": [1.0, 1.0, 1.0, 1.0, 1.0]}
             ]
           },
@@ -71,7 +71,7 @@
               },
               {"type": "zarr"}
             ],
-            "downsamplingTransformations": [
+            "downsampling_transformations": [
               {"type": "scale", "scale": [1.0, 1.0, 1.0, 2.0, 2.0]}
             ]
           },
@@ -84,7 +84,7 @@
               },
               {"type": "zarr"}
             ],
-            "downsamplingTransformations": [
+            "downsampling_transformations": [
               {"type": "scale", "scale": [1.0, 1.0, 1.0, 4.0, 4.0]}
             ]
           }
