@@ -2,7 +2,15 @@ from __future__ import annotations
 
 from typing import Annotated, Literal
 
-from pydantic import MISSING, BaseModel, ConfigDict, StringConstraints
+from pydantic import (
+    MISSING,
+    AfterValidator,
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    model_validator,
+)
 
 from .utils import OpenTypeUnion
 
@@ -174,12 +182,54 @@ class CoordinateTransformationReference(BaseModel):
 
 class _CoordinateTransformation(BaseModel):
     name: Name | MISSING = MISSING
-    input: CoordinateTransformationReference
-    output: CoordinateTransformationReference
+    # Required at the top level; MAY be omitted when nested in a sequence,
+    # by_dimension or bijection, where they follow from the parent
+    input: CoordinateTransformationReference | MISSING = MISSING
+    output: CoordinateTransformationReference | MISSING = MISSING
+
+
+Matrix = tuple[tuple[float, ...], ...]
+
+
+class _MatrixCoordinateTransformation(_CoordinateTransformation):
+    """Parameters are given inline or by `ref` to a 2D Zarr array, not both."""
+
+    ref: ReferenceLocatorPipeline | MISSING = MISSING
+
+    @model_validator(mode="after")
+    def _inline_xor_ref(self):
+        inline = getattr(self, self.type) is not MISSING
+        if inline == (self.ref is not MISSING):
+            raise ValueError(f"exactly one of {self.type!r} and 'ref' is required")
+        return self
 
 
 class IdentityCoordinateTransformation(_CoordinateTransformation):
     type: Literal["identity"] = "identity"
+
+
+class MapAxisCoordinateTransformation(_CoordinateTransformation):
+    type: Literal["map_axis"] = "map_axis"
+    map_axis: tuple[int, ...]  # output axis i is input axis map_axis[i]
+
+    @model_validator(mode="after")
+    def _is_permutation(self):
+        if sorted(self.map_axis) != list(range(len(self.map_axis))):
+            raise ValueError("map_axis must be a permutation of 0..N-1")
+        return self
+
+
+class ProjectAxisCoordinateTransformation(_CoordinateTransformation):
+    type: Literal["project_axis"] = "project_axis"
+    created_outputs: tuple[int, ...] | MISSING = MISSING  # new axes, default 0
+    dropped_inputs: tuple[int, ...] | MISSING = MISSING
+
+    @model_validator(mode="after")
+    def _unique(self):
+        for axes in (self.created_outputs, self.dropped_inputs):
+            if axes is not MISSING and len(set(axes)) != len(axes):
+                raise ValueError("created_outputs and dropped_inputs must be unique")
+        return self
 
 
 class ScaleCoordinateTransformation(_CoordinateTransformation):
@@ -192,18 +242,88 @@ class TranslationCoordinateTransformation(_CoordinateTransformation):
     translation: tuple[float, ...]
 
 
+class AffineCoordinateTransformation(_MatrixCoordinateTransformation):
+    type: Literal["affine"] = "affine"
+    affine: Matrix | MISSING = MISSING  # M x (N+1)
+
+
+class RotationCoordinateTransformation(_MatrixCoordinateTransformation):
+    type: Literal["rotation"] = "rotation"
+    rotation: Matrix | MISSING = MISSING  # N x N, orthonormal, det 1
+
+
+class SequenceCoordinateTransformation(_CoordinateTransformation):
+    type: Literal["sequence"] = "sequence"
+    transformations: Annotated[
+        tuple[NestedCoordinateTransformation, ...], Field(min_length=1)
+    ]
+
+
+# Not exhaustive; consumers SHOULD tell users when they use another method
+Interpolation = Literal["nearest", "linear", "bspline-cubic"] | Type
+
+
+class CoordinatesCoordinateTransformation(_CoordinateTransformation):
+    type: Literal["coordinates"] = "coordinates"
+    ref: ReferenceLocatorPipeline  # multiscale of absolute positions
+    interpolation: Interpolation | MISSING = MISSING  # default: linear
+
+
+class DisplacementsCoordinateTransformation(_CoordinateTransformation):
+    type: Literal["displacements"] = "displacements"
+    ref: ReferenceLocatorPipeline  # multiscale of relative shifts
+    interpolation: Interpolation | MISSING = MISSING  # default: linear
+
+
+class ByDimensionItem(BaseModel):
+    transformation: NestedCoordinateTransformation
+    input_axes: tuple[int, ...]
+    output_axes: tuple[int, ...]
+
+
+class ByDimensionCoordinateTransformation(_CoordinateTransformation):
+    type: Literal["by_dimension"] = "by_dimension"
+    transformations: tuple[ByDimensionItem, ...]
+
+
+class BijectionCoordinateTransformation(_CoordinateTransformation):
+    type: Literal["bijection"] = "bijection"
+    forward: NestedCoordinateTransformation
+    inverse: NestedCoordinateTransformation
+
+
 class CustomCoordinateTransformation(_CoordinateTransformation):
     model_config = ConfigDict(extra="allow")  # keep extension fields
 
     type: Type
 
 
-CoordinateTransformation = Annotated[
+NestedCoordinateTransformation = Annotated[
     IdentityCoordinateTransformation
+    | MapAxisCoordinateTransformation
+    | ProjectAxisCoordinateTransformation
     | ScaleCoordinateTransformation
     | TranslationCoordinateTransformation
+    | AffineCoordinateTransformation
+    | RotationCoordinateTransformation
+    | SequenceCoordinateTransformation
+    | CoordinatesCoordinateTransformation
+    | DisplacementsCoordinateTransformation
+    | ByDimensionCoordinateTransformation
+    | BijectionCoordinateTransformation
     | CustomCoordinateTransformation,
     OpenTypeUnion(),
+]
+
+
+def _has_input_output(t: _CoordinateTransformation) -> _CoordinateTransformation:
+    if t.input is MISSING or t.output is MISSING:
+        raise ValueError("top-level coordinate transformations need input and output")
+    return t
+
+
+CoordinateTransformation = Annotated[
+    NestedCoordinateTransformation, AfterValidator(_has_input_output)
 ]
 
 
