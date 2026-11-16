@@ -13,15 +13,9 @@ from rfc8_model.models import (
 
 multiscale_zarr_group = ZarrJson.with_ome(
     MultiscaleNode(
-        coordinate_systems=(),
-        arrays=(
-            MultiscaleNodeArray(
-                downsampling_transformations=(
-                    ScaleDownsamplingCoordinateTransformation(
-                        scale=(1.0, 1.0, 1.0, 1.0)
-                    ),
-                )
-            ),
+        id=str(uuid7()),
+        data=(
+            MultiscaleNodeArray(),
             MultiscaleNodeArray(
                 downsampling_transformations=(
                     ScaleDownsamplingCoordinateTransformation(

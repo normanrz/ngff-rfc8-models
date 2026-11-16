@@ -20,25 +20,13 @@
               {"id": "y", "unit": "micrometer", "type": "space"},
               {"id": "x", "unit": "micrometer", "type": "space"}
             ]
-          },
-          {
-            "type": "coordinate_system",
-            "id": "7ebd88c0-1f6b-568e-bb29-5a557e087e40",
-            "name": "array",
-            "axes": [
-              {"id": "t", "type": "array"},
-              {"id": "c", "type": "array"},
-              {"id": "z", "type": "array"},
-              {"id": "y", "type": "array"},
-              {"id": "x", "type": "array"}
-            ]
           }
         ],
         "coordinate_transformations": [
           {
             "input": {
-              "type": "coordinate_system",
-              "ref": [{"type": "id", "id": "7ebd88c0-1f6b-568e-bb29-5a557e087e40"}]
+              "type": "multiscale",
+              "ref": [{"type": "id", "id": "ab9aa7b6-9afa-5688-92bd-69268f8fad7e"}]
             },
             "output": {
               "type": "coordinate_system",
@@ -48,22 +36,19 @@
             "scale": [1.0, 1.0, 1.0, 1.0, 1.0]
           }
         ],
-        "arrays": [
+        "data": [
           {
-            "id": "295e2b1d-0f74-52fd-be3a-171cb9a95860",
+            "type": "array",
             "ref": [
               {
                 "type": "url",
                 "url": "https://livingobjects.ebi.ac.uk/idr/zarr/v0.5/idr0010/76-45.ome.zarr/A/1/0/0"
               },
               {"type": "zarr"}
-            ],
-            "downsampling_transformations": [
-              {"type": "scale", "scale": [1.0, 1.0, 1.0, 1.0, 1.0]}
             ]
           },
           {
-            "id": "3a6085bd-9381-53b6-b817-75bf8a6d3277",
+            "type": "array",
             "ref": [
               {
                 "type": "url",
@@ -76,7 +61,7 @@
             ]
           },
           {
-            "id": "3573c1f6-6fb7-56bb-be84-2a846db83ddb",
+            "type": "array",
             "ref": [
               {
                 "type": "url",

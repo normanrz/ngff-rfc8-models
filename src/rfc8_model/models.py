@@ -124,8 +124,8 @@ class _CoordinateSystemAxis(BaseModel):
     long_name: Name | MISSING = MISSING  # MAY
 
 
-class ArrayCoordinateSystemAxis(_CoordinateSystemAxis):
-    type: Literal["array"]
+class IndexCoordinateSystemAxis(_CoordinateSystemAxis):
+    type: Literal["index"]
 
 
 class SpaceCoordinateSystemAxis(_CoordinateSystemAxis):
@@ -157,7 +157,7 @@ class CustomCoordinateSystemAxis(_CoordinateSystemAxis):
 
 
 CoordinateSystemAxis = Annotated[
-    ArrayCoordinateSystemAxis
+    IndexCoordinateSystemAxis
     | SpaceCoordinateSystemAxis
     | TimeCoordinateSystemAxis
     | ChannelCoordinateSystemAxis
@@ -176,7 +176,8 @@ class CoordinateSystem(BaseModel):
 
 
 class CoordinateTransformationReference(BaseModel):
-    type: Literal["coordinate_system"] = "coordinate_system"
+    # `multiscale` only as the input of a multiscale's own coordinate transformations
+    type: Literal["coordinate_system", "multiscale"] = "coordinate_system"
     ref: ReferenceLocatorPipeline
 
 
@@ -338,31 +339,56 @@ class TranslationDownsamplingCoordinateTransformation(BaseModel):
 
 
 class MultiscaleNodeArray(BaseModel):
-    type: Literal["singlescale"] = "singlescale"  # ??
-    id: Id | MISSING = MISSING
+    type: Literal["array"] = "array"
     name: Name | MISSING = MISSING
     ref: ReferenceLocatorPipeline | MISSING = MISSING
+    # From this array's index space to that of the first (highest-resolution) array
     downsampling_transformations: (
         tuple[ScaleDownsamplingCoordinateTransformation]
         | tuple[
             ScaleDownsamplingCoordinateTransformation,
             TranslationDownsamplingCoordinateTransformation,
         ]
-        | tuple[
-            TranslationDownsamplingCoordinateTransformation,
-            ScaleDownsamplingCoordinateTransformation,
-        ]
-    )
+        | MISSING
+    ) = MISSING  # MAY be omitted on the first array only
+
+
+def _local_id(ref: CoordinateTransformationReference) -> str | None:
+    """The id of a reference that resolves within the current document."""
+    if len(ref.ref) == 1 and isinstance(ref.ref[0], IdReferenceLocator):
+        return ref.ref[0].id
+    return None
 
 
 class MultiscaleNode(BaseModel):
     type: Literal["multiscale"] = "multiscale"
-    id: Id | MISSING = MISSING
+    id: Id
     name: Name | MISSING = MISSING
-    coordinate_systems: tuple[CoordinateSystem, ...]
+    coordinate_systems: tuple[CoordinateSystem, ...] | MISSING = MISSING
+    # From the multiscale itself, standing for its first (highest-resolution)
+    # array, to a coordinate system in `coordinate_systems`
     coordinate_transformations: tuple[CoordinateTransformation, ...] | MISSING = MISSING
-    arrays: tuple[MultiscaleNodeArray, ...]
+    data: tuple[MultiscaleNodeArray, ...]
     traits: tuple[Trait, ...] | MISSING = MISSING
+
+    @model_validator(mode="after")
+    def _check(self):
+        for array in self.data[1:]:
+            if array.downsampling_transformations is MISSING:
+                raise ValueError("data arrays after the first need downsampling_transformations")
+        if self.coordinate_transformations is MISSING:
+            return self
+        cs_ids = {cs.id for cs in self.coordinate_systems or ()}
+        outputs = set()
+        for ct in self.coordinate_transformations:
+            if ct.input.type != "multiscale" or _local_id(ct.input) != self.id:
+                raise ValueError("input must reference the multiscale itself")
+            if ct.output.type != "coordinate_system" or _local_id(ct.output) not in cs_ids:
+                raise ValueError("output must reference a coordinate system of the multiscale")
+            outputs.add(_local_id(ct.output))
+        if len(outputs) > 1:
+            raise ValueError("all outputs must reference the same coordinate system")
+        return self
 
 
 class MultiscaleNodeReference(BaseModel):
@@ -412,6 +438,13 @@ class SceneTrait(BaseModel):
     type: Literal["scene"] = "scene"
     coordinate_systems: tuple[CoordinateSystem, ...] | MISSING = MISSING
     coordinate_transformations: tuple[CoordinateTransformation, ...]
+
+    @model_validator(mode="after")
+    def _between_coordinate_systems(self):
+        for ct in self.coordinate_transformations:
+            if ct.input.type != "coordinate_system" or ct.output.type != "coordinate_system":
+                raise ValueError("scene transformations connect coordinate systems")
+        return self
 
 
 class CustomTrait(BaseModel):
