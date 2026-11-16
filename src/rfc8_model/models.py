@@ -329,11 +329,15 @@ CoordinateTransformation = Annotated[
 
 
 class ScaleDownsamplingCoordinateTransformation(BaseModel):
+    model_config = ConfigDict(extra="forbid")  # input and output are implicit
+
     type: Literal["scale"] = "scale"
     scale: tuple[float, ...]
 
 
 class TranslationDownsamplingCoordinateTransformation(BaseModel):
+    model_config = ConfigDict(extra="forbid")  # input and output are implicit
+
     type: Literal["translation"] = "translation"
     translation: tuple[float, ...]
 
@@ -364,10 +368,10 @@ class MultiscaleNode(BaseModel):
     type: Literal["multiscale"] = "multiscale"
     id: Id
     name: Name | MISSING = MISSING
-    coordinate_systems: tuple[CoordinateSystem, ...] | MISSING = MISSING
+    coordinate_systems: tuple[CoordinateSystem, ...]
     # From the multiscale itself, standing for its first (highest-resolution)
     # array, to a coordinate system in `coordinate_systems`
-    coordinate_transformations: tuple[CoordinateTransformation, ...] | MISSING = MISSING
+    coordinate_transformations: tuple[CoordinateTransformation, ...]
     data: tuple[MultiscaleNodeArray, ...]
     traits: tuple[Trait, ...] | MISSING = MISSING
 
@@ -376,9 +380,7 @@ class MultiscaleNode(BaseModel):
         for array in self.data[1:]:
             if array.downsampling_transformations is MISSING:
                 raise ValueError("data arrays after the first need downsampling_transformations")
-        if self.coordinate_transformations is MISSING:
-            return self
-        cs_ids = {cs.id for cs in self.coordinate_systems or ()}
+        cs_ids = {cs.id for cs in self.coordinate_systems}
         outputs = set()
         for ct in self.coordinate_transformations:
             if ct.input.type != "multiscale" or _local_id(ct.input) != self.id:
