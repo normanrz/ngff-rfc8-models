@@ -7,9 +7,10 @@ documents copied from ngio-collections `examples/data` (branch `rfc8-revision1`)
   a custom `{type: "url", url}` locator.
 * `{type, ref: "<id>", path?}` references become `ref` pipelines ending in an
   `id` locator.
-* `scales` become `arrays`: each array's downsampling scale is relative to the
-  first scale, whose absolute scale becomes a multiscale transformation from an
-  added `array` coordinate system to the physical one.
+* `scales` become `data` arrays: each array's downsampling scale is relative to the
+  first array, which has none. The first scale's absolute scale becomes a
+  multiscale transformation from the multiscale itself (standing for its first
+  array) to the physical coordinate system. Arrays have no ids.
 * Axis names become axis ids.
 * `extension_manifest` becomes `extension_manifests`.
 """
@@ -18,7 +19,6 @@ from __future__ import annotations
 
 import json
 import sys
-import uuid
 from pathlib import Path
 from typing import Any
 
@@ -69,34 +69,26 @@ def multiscale(node: Json) -> Json:
     (physical,) = node["coordinate_systems"]
     scales = [s for scale in node["scales"] for s in scale["coordinate_transformations"]]
     base = scales[0]["scale"]
-    array_cs = {
-        "type": "coordinate_system",
-        "id": str(uuid.uuid5(uuid.NAMESPACE_URL, physical["id"] + "/array")),
-        "name": "array",
-        "axes": [{"id": a["name"], "type": "array"} for a in physical["axes"]],
-    }
     arrays = [
-        {
-            "id": scale["id"],
-            "ref": pipeline(scale["path"]),
-            "downsampling_transformations": [
-                {"type": "scale", "scale": [ratio(s, b) for s, b in zip(ct["scale"], base)]}
-                for ct in scale["coordinate_transformations"]
-            ],
-        }
+        {"type": "array", "ref": pipeline(scale["path"])}
         for scale in node["scales"]
     ]
+    for array, scale in list(zip(arrays, node["scales"]))[1:]:
+        array["downsampling_transformations"] = [
+            {"type": "scale", "scale": [ratio(s, b) for s, b in zip(ct["scale"], base)]}
+            for ct in scale["coordinate_transformations"]
+        ]
     out = {k: v for k, v in node.items() if k not in ("scales", "nodes", "coordinate_systems")}
-    out["coordinate_systems"] = [coordinate_system(physical), array_cs]
+    out["coordinate_systems"] = [coordinate_system(physical)]
     out["coordinate_transformations"] = [
         {
             "type": "scale",
-            "input": {"type": "coordinate_system", "ref": [{"type": "id", "id": array_cs["id"]}]},
+            "input": {"type": "multiscale", "ref": [{"type": "id", "id": node["id"]}]},
             "output": {"type": "coordinate_system", "ref": [{"type": "id", "id": physical["id"]}]},
             "scale": base,
         }
     ]
-    out["arrays"] = arrays
+    out["data"] = arrays
     if "traits" in node:
         out["traits"] = references(node["traits"])
     return out

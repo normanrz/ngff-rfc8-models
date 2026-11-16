@@ -16,19 +16,13 @@
               {"id": "y", "unit": "micrometer", "type": "space"},
               {"id": "x", "unit": "micrometer", "type": "space"}
             ]
-          },
-          {
-            "type": "coordinate_system",
-            "id": "74a417e7-a8cf-5257-af67-919e3f6deb3c",
-            "name": "array",
-            "axes": [{"id": "y", "type": "array"}, {"id": "x", "type": "array"}]
           }
         ],
         "coordinate_transformations": [
           {
             "input": {
-              "type": "coordinate_system",
-              "ref": [{"type": "id", "id": "74a417e7-a8cf-5257-af67-919e3f6deb3c"}]
+              "type": "multiscale",
+              "ref": [{"type": "id", "id": "0192f3a0-7c1e-7b00-9c22-000000000002"}]
             },
             "output": {
               "type": "coordinate_system",
@@ -38,13 +32,7 @@
             "scale": [1.0, 1.0]
           }
         ],
-        "arrays": [
-          {
-            "id": "0192f3a0-7c1e-7b00-9c22-000000000032",
-            "ref": [{"type": "zarr", "path": "./s0"}],
-            "downsampling_transformations": [{"type": "scale", "scale": [1.0, 1.0]}]
-          }
-        ]
+        "data": [{"type": "array", "ref": [{"type": "zarr", "path": "./s0"}]}]
       }
     }
   }
