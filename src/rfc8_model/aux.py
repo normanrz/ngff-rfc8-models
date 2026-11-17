@@ -10,7 +10,7 @@ from .models import Node
 
 class OmeAttributes(BaseModel):
     version: Literal["0.9dev42"] = "0.9dev42"
-    root: Node
+    content: Node
     extension_manifest: ExtensionManifest | MISSING = MISSING
 
 
@@ -25,7 +25,7 @@ class ZarrJson(BaseModel):
 
     @classmethod
     def with_ome(cls, node: Node) -> Self:
-        return cls(attributes=Attributes(ome=OmeAttributes(root=node)))
+        return cls(attributes=Attributes(ome=OmeAttributes(content=node)))
 
     @property
     def path(self) -> str:
@@ -37,7 +37,7 @@ class StandaloneJson(BaseModel):
 
     @classmethod
     def with_ome(cls, node: Node) -> Self:
-        return cls(ome=OmeAttributes(root=node))
+        return cls(ome=OmeAttributes(content=node))
 
     @property
     def path(self) -> str:
